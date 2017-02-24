@@ -1,49 +1,38 @@
-// Example testing sketch for various DHT humidity/temperature sensors
-// Written by ladyada, public domain
+#include "Arduino.h"
 
-#include "DHT.h"
+#include "Coffee_AC_Sensor.h"
+#include "Coffee_BMP180_Sensor.h"
 
-#define BUF_LEN 30
+CoffeeACSensor ac_all(A2, VPERAMP_30A, 75, 0.13);
+CoffeeACSensor ac_pump(A3, VPERAMP_5A, 75, 0.02);
+CoffeeBMP180Sensor pressure_sensor;
 
-#define DHTPIN 3    
+void setup()
+{ 
+    Serial.begin(9600);
 
-DHT dht(DHTPIN, DHT11);
-
-void setup() {
-  Serial.begin(9600);
-  Serial.println("DHTxx test!");
-
-  pinMode(2, OUTPUT);   
-  pinMode(4, OUTPUT);   
-  digitalWrite(2, HIGH);
-  digitalWrite(4, LOW);  
-  
-  dht.begin();
+    pressure_sensor.begin();
 }
 
-void loop() {
+void loop()
+{
 
-  delay(2000);
+    float ac_all_data = ac_all.getAmpsRMS();
+    float ac_pump_data = ac_pump.getAmpsRMS();
 
-  // Reading temperature or humidity takes about 250 milliseconds!
-  float h = dht.readHumidity();
-  float t = dht.readTemperature();
+    float temperature_inside = pressure_sensor.getTemperature();
+    float hg_pressure = pressure_sensor.getPressure();
 
-  if (isnan(h) || isnan(t)) {
-    return;
-  }
+    Serial.print(ac_all_data);
+    Serial.println(" A RMS all");
+    Serial.print(ac_pump_data);
+    Serial.println(" A RMS pump");
+    Serial.print(temperature_inside);
+    Serial.println(" C temp inside");
+    Serial.print(hg_pressure);
+    Serial.println(" hg pressure");
 
-  char buf[BUF_LEN];
-  char outstr[15], outstr2[15];
-  dtostrf(h,0,1, outstr);
-  dtostrf(t,0,1, outstr2);
-  sprintf (&buf[0], "%s;%s\n", outstr, outstr2);
-  Serial.print(buf);
-  //Serial.print("Humidity: ");
-  //Serial.print(h);
-  //Serial.print(" %\t");
-  //Serial.print("Temperature: ");
-  //Serial.print(t);
-  //Serial.print(" *C\n");
 
+    delay(300);
 }
+
