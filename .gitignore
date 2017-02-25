@@ -1,1 +1,4 @@
-.pioenvs
+*.pyc
+acore/logs/
+acore/lib/
+.idea/
